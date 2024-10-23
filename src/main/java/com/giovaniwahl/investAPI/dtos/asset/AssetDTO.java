@@ -1,58 +1,42 @@
-package com.giovaniwahl.investAPI.entities;
+package com.giovaniwahl.investAPI.dtos.asset;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.giovaniwahl.investAPI.entities.Asset;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Objects;
+import java.util.UUID;
 
-@Entity
-@Table(name = "tb_asset")
-public class Asset {
-    @EmbeddedId
-    private AssetPK id = new AssetPK();
+public class AssetDTO {
 
+    private UUID productId;
     private String ticker;
+    private Long amount;
+    private BigDecimal averagePrice;
+    private BigDecimal totalPrice;
+    private BigDecimal totalInvest;
+    private BigDecimal pvp;
+    private BigDecimal dividendYield;
+    private BigDecimal dividendMonthly;
+    private BigDecimal jcpMonthly;
+    private BigDecimal totalDividend;
+    private BigDecimal profitabilityMonthly;
+    private BigDecimal profitabilityAverage;
+    private BigDecimal assetValue;
+    private Instant inclusionDate;
+    private Instant buyDate;
+    private Long quantityBuy;
+    private BigDecimal purchasePrice;
+    private Instant soldDate;
+    private Long quantitySold;
+    private BigDecimal salePrice;
 
-    private Long amount; // Quantidade de cotas
-    private BigDecimal averagePrice; // Preço médio
-    private BigDecimal totalPrice; // Preço total
-    private BigDecimal totalInvest; // total investido
-
-    private BigDecimal pvp; // P/VP calculado com base no preço medio dividido pelo patrimonial
-    private BigDecimal dividendYield; // calculado com base nos proventos dos ultimos 12 meses
-    private BigDecimal dividendMonthly; // dividendo referente o meses
-    private BigDecimal jcpMonthly; // JCP referente o meses
-    private BigDecimal totalDividend; // soma total de dividendos recebidos desde a data que aquisição + jcp
-    private BigDecimal profitabilityMonthly; // rentabilidade do mes calculada dividindo o valor do dividendo mensal pelo valor total investido no fundo
-    private BigDecimal profitabilityAverage; // rentabilidade media dos ultimos 12 meses
-    private BigDecimal assetValue; // preço medio descontado do dividendo recebidos
-
-    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
-    private Instant inclusionDate; // Data da 1° compra
-
-    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
-    private Instant buyDate; // Data da ultima compra
-    private Long quantityBuy; // Quantidade da ultima compra
-    private BigDecimal purchasePrice; // Preço de compra
-
-    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
-    private Instant soldDate; // Data da ultima venda
-    private Long quantitySold; // Quantidade da ultima venda
-    private BigDecimal salePrice; // Preço de venda
-
-    public Asset() {}
-
-    public Asset(Stock stock,Product product,String ticker, Long amount, BigDecimal averagePrice, BigDecimal totalPrice,
-                 BigDecimal totalInvest, BigDecimal pvp, BigDecimal dividendYield, BigDecimal dividendMonthly,
-                 BigDecimal jcpMonthly, BigDecimal totalDividend, BigDecimal profitabilityMonthly,
-                 BigDecimal profitabilityAverage, BigDecimal assetValue, Instant inclusionDate, Instant buyDate,
-                 Long quantityBuy, BigDecimal purchasePrice, Instant soldDate,Long quantitySold,BigDecimal salePrice) {
-        id.setStock(stock);
-        id.setProduct(product);
+    public AssetDTO(UUID productId,String ticker, Long amount, BigDecimal averagePrice, BigDecimal totalPrice,
+                    BigDecimal totalInvest, BigDecimal pvp, BigDecimal dividendYield, BigDecimal dividendMonthly,
+                    BigDecimal jcpMonthly, BigDecimal totalDividend, BigDecimal profitabilityMonthly,
+                    BigDecimal profitabilityAverage, BigDecimal assetValue, Instant inclusionDate, Instant buyDate,
+                    Long quantityBuy, BigDecimal purchasePrice, Instant soldDate, Long quantitySold,
+                    BigDecimal salePrice) {
+        this.productId = productId;
         this.ticker = ticker;
         this.amount = amount;
         this.averagePrice = averagePrice;
@@ -74,12 +58,32 @@ public class Asset {
         this.quantitySold = quantitySold;
         this.salePrice = salePrice;
     }
+    public AssetDTO(Asset entity) {
+        productId = entity.getProduct().getId();
+        ticker = entity.getProduct().getSymbol();
+        amount = entity.getAmount();
+        averagePrice = entity.getAveragePrice();
+        totalPrice = entity.getTotalPrice();
+        totalInvest = entity.getTotalInvest();
+        pvp = entity.getPvp();
+        dividendYield = entity.getDividendYield();
+        dividendMonthly = entity.getDividendMonthly();
+        jcpMonthly = entity.getJcpMonthly();
+        totalDividend = entity.getTotalDividend();
+        profitabilityMonthly = entity.getProfitabilityMonthly();
+        profitabilityAverage = entity.getProfitabilityAverage();
+        assetValue = entity.getAssetValue();
+        inclusionDate = entity.getInclusionDate();
+        buyDate = entity.getBuyDate();
+        quantityBuy = entity.getQuantityBuy();
+        purchasePrice = entity.getPurchasePrice();
+        soldDate = entity.getSoldDate();
+        quantitySold = entity.getQuantitySold();
+        salePrice = entity.getSalePrice();
+    }
 
-    public Stock getStock(){return id.getStock();}
-    public void setStock(Stock stock){id.setStock(stock);}
-
-    public Product getProduct(){return id.getProduct();}
-    public void setProduct(Product product){id.setProduct(product);}
+    public UUID getProductId() {return productId;}
+    public void setProductId(UUID productId) {this.productId = productId;}
 
     public String getTicker() {return ticker;}
     public void setTicker(String ticker) {this.ticker = ticker;}
@@ -140,18 +144,4 @@ public class Asset {
 
     public BigDecimal getSalePrice() {return salePrice;}
     public void setSalePrice(BigDecimal salePrice) {this.salePrice = salePrice;}
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Asset asset = (Asset) o;
-        return Objects.equals(id, asset.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
 }

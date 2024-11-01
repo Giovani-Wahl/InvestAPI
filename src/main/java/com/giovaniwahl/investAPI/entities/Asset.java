@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -17,32 +18,32 @@ public class Asset {
 
     private String ticker;
 
-    private Long amount; // Quantidade de cotas
-    private BigDecimal averagePrice; // Preço médio
-    private BigDecimal totalPrice; // Preço total
-    private BigDecimal totalInvest; // total investido
+    private Long amount = 0L; // Quantidade de cotas
+    private BigDecimal averagePrice = BigDecimal.ZERO; // Preço médio
+    private BigDecimal totalPrice = BigDecimal.ZERO; // Preço total
+    private BigDecimal totalInvest = BigDecimal.ZERO; // total investido
 
-    private BigDecimal pvp; // P/VP calculado com base no preço medio dividido pelo patrimonial
-    private BigDecimal dividendYield; // calculado com base nos proventos dos ultimos 12 meses
-    private BigDecimal dividendMonthly; // dividendo referente o meses
-    private BigDecimal jcpMonthly; // JCP referente o meses
-    private BigDecimal totalDividend; // soma total de dividendos recebidos desde a data que aquisição + jcp
-    private BigDecimal profitabilityMonthly; // rentabilidade do mes calculada dividindo o valor do dividendo mensal pelo valor total investido no fundo
-    private BigDecimal profitabilityAverage; // rentabilidade media dos ultimos 12 meses
-    private BigDecimal assetValue; // preço medio descontado do dividendo recebidos
+    private BigDecimal pvp = BigDecimal.ZERO; // P/VP calculado com base no preço medio dividido pelo patrimonial
+    private BigDecimal dividendYield = BigDecimal.ZERO; // calculado com base nos proventos dos ultimos 12 meses
+    private BigDecimal dividendMonthly = BigDecimal.ZERO; // dividendo referente o meses
+    private BigDecimal jcpMonthly = BigDecimal.ZERO; // JCP referente o meses
+    private BigDecimal totalDividend = BigDecimal.ZERO; // soma total de dividendos recebidos desde a data que aquisição + jcp
+    private BigDecimal profitabilityMonthly = BigDecimal.ZERO; // rentabilidade do mes calculada dividindo o valor do dividendo mensal pelo valor total investido no fundo
+    private BigDecimal profitabilityAverage = BigDecimal.ZERO; // rentabilidade media dos ultimos 12 meses
+    private BigDecimal assetValue = BigDecimal.ZERO; // preço medio descontado do dividendo recebidos
 
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant inclusionDate; // Data da 1° compra
 
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant buyDate; // Data da ultima compra
-    private Long quantityBuy; // Quantidade da ultima compra
-    private BigDecimal purchasePrice; // Preço de compra
+    private Long quantityBuy = 0L; // Quantidade da ultima compra
+    private BigDecimal purchasePrice = BigDecimal.ZERO; // Preço de compra
 
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant soldDate; // Data da ultima venda
-    private Long quantitySold; // Quantidade da ultima venda
-    private BigDecimal salePrice; // Preço de venda
+    private Long quantitySold = 0L; // Quantidade da ultima venda
+    private BigDecimal salePrice = BigDecimal.ZERO; // Preço de venda
 
     public Asset() {}
 
@@ -85,13 +86,18 @@ public class Asset {
     public void setTicker(String ticker) {this.ticker = ticker;}
 
     public Long getAmount() {return amount;}
-    public void setAmount(Long amount) {this.amount = amount;}
+    public void setAmount(Long amount) {
+        if (amount != null && amount < 0) throw new IllegalArgumentException("Amount cannot be negative");
+        this.amount = amount;
+    }
 
     public BigDecimal getAveragePrice() {return averagePrice;}
     public void setAveragePrice(BigDecimal averagePrice) {this.averagePrice = averagePrice;}
 
     public BigDecimal getTotalPrice() {return totalPrice;}
-    public void setTotalPrice(BigDecimal totalPrice) {this.totalPrice = totalPrice;}
+    public void setTotalPrice(BigDecimal totalPrice) {
+        this.totalInvest = (totalInvest != null) ? totalInvest : BigDecimal.ZERO;
+    }
 
     public BigDecimal getTotalInvest() {return totalInvest;}
     public void setTotalInvest(BigDecimal totalInvest) {this.totalInvest = totalInvest;}
@@ -140,6 +146,10 @@ public class Asset {
 
     public BigDecimal getSalePrice() {return salePrice;}
     public void setSalePrice(BigDecimal salePrice) {this.salePrice = salePrice;}
+
+    public void updateProfitabilityMonthly() {
+        this.profitabilityMonthly = dividendMonthly.divide(totalInvest, RoundingMode.HALF_EVEN);
+    }
 
     @Override
     public boolean equals(Object o) {
